@@ -34,8 +34,13 @@ CSG new_CSG(char* Course, int StudentId, char* Grade){
 }
 
 int hash_CSG(CSG t){
-	int key = atoi(t->Course);
-	key = key+(t->StudentId);
+	char Course[4];
+	for (int i = 0; i < 3; i++){
+		Course[i] = t->Course[i+2];
+	}
+	Course[3] = '\0';
+	int key = atoi(Course);
+	key += t->StudentId;
 	key = key % 1009;
 	return key;
 }
@@ -73,7 +78,9 @@ void insert_CSG(CSG t, CSGHashTable R){
 	if (R[key] == NULL){
 		R[key] = new_LinkedList();
 	}
-	LinkedList_add_at_end(R[key], t);
+	if (LinkedList_isEmpty(lookup_CSG(t, R))){
+		LinkedList_add_at_end(R[key], t);
+	}
 }
 
 // assume that the components of key attributes will always be given
@@ -81,13 +88,15 @@ void delete_CSG(CSG X, CSGHashTable R){
 	int key = hash_CSG(X);
 	if (R[key] != NULL){
 		LinkedList_remove(R[key], X);
+	} else {
+		printf("delete: don't have that element");
 	}
 }
 
 // assume that the components of key attributes will always be given
 CSGList lookup_CSG(CSG X, CSGHashTable R){
-	int key = hash_CSG(X);
 	CSGList list = new_LinkedList();
+	int key = hash_CSG(X);
 	if (R[key] != NULL){
 		LinkedListIterator iterator = LinkedList_iterator(R[key]);
 		while (LinkedListIterator_hasNext(iterator)){
@@ -105,12 +114,16 @@ void print_CSG(CSG csg){
 }
 
 void print_CSGList(CSGList list){
-	LinkedListIterator iterator = LinkedList_iterator(list);
-	while (LinkedListIterator_hasNext(iterator)){
-		CSG csg = LinkedListIterator_next(iterator);
-		print_CSG(csg);
+	if (!LinkedList_isEmpty(list)){
+		LinkedListIterator iterator = LinkedList_iterator(list);
+		while (LinkedListIterator_hasNext(iterator)){
+			CSG csg = LinkedListIterator_next(iterator);
+			print_CSG(csg);
+		}
+		free(iterator);
+	} else {
+		printf("\n");
 	}
-	free(iterator);
 }
 
 void print_CSGRelation(CSGHashTable R){
@@ -118,6 +131,20 @@ void print_CSGRelation(CSGHashTable R){
 	for (int i = 0; i < 1009; i++){
 		if (R[i]!=NULL){
 			print_CSGList(R[i]);
+		}
+	}
+}
+
+void fprint_CSGRelation(CSGHashTable R, FILE *f){
+	fprintf(f, "Course StudentId Grade\n");
+	for (int i = 0; i < 1009; i++){
+		if (R[i]!=NULL){
+			LinkedListIterator iterator = LinkedList_iterator(R[i]);
+			while (LinkedListIterator_hasNext(iterator)){
+				CSG csg = LinkedListIterator_next(iterator);
+				fprintf(f, "%s %d %s\n", csg->Course, csg->StudentId, csg->Grade);
+			}
+			free(iterator);
 		}
 	}
 }

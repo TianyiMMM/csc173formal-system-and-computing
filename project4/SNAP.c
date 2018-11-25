@@ -93,7 +93,9 @@ void insert_SNAP(SNAP t, SNAPHashTable R){
 	if (R[key] == NULL){
 		R[key] = new_LinkedList();
 	}
-	LinkedList_add_at_end(R[key], t);
+	if (LinkedList_isEmpty(lookup_SNAP(t, R))){
+		LinkedList_add_at_end(R[key], t);
+	}
 }
 
 // assume that the components of key attributes will always be given
@@ -143,5 +145,17 @@ void print_SNAPRelation(SNAPHashTable R){
 }
 
 
-
+void fprint_SNAPRelation(SNAPHashTable R, FILE *f){
+	fprintf(f, "StudentId Name Address Phone\n");
+	for (int i = 0; i < 1009; i++){
+		if (R[i]!=NULL){
+			LinkedListIterator iterator = LinkedList_iterator(R[i]);
+			while (LinkedListIterator_hasNext(iterator)){
+				SNAP snap = LinkedListIterator_next(iterator);
+				fprintf(f, "%d %s %s %s\n", snap->StudentId, snap->Name, snap->Address, snap->Phone);
+			}
+			free(iterator);
+		}
+	}
+}
 

@@ -13,9 +13,9 @@ extern CP new_CP(char* Course, char* Prerequisite);
 
 extern int hash_CP(CP t);
 
-extern void free_HashTable();
+extern void free_CPHashTable(CPHashTable R);
 
-extern bool equal_CP(CP X, CP CP);
+extern bool equal_CP(CP X, CP cp);
 
 extern void insert_CP(CP t, CPHashTable R);
 
@@ -23,10 +23,12 @@ extern void delete_CP(CP X, CPHashTable R);
 
 extern CPList lookup_CP(CP X, CPHashTable R);
 
-extern void print_CP(CP CP);
+extern void print_CP(CP cp);
 
 extern void print_CPList(CPList list);
 
 extern void print_CPRelation(CPHashTable R);
+
+extern void fprint_CPRelation(CPHashTable R, FILE *f);
 
 #endif

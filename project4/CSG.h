@@ -13,7 +13,7 @@ extern CSG new_CSG(char* Course, int StudentId, char* Grade);
 
 extern int hash_CSG(CSG t);
 
-extern void free_HashTable();
+extern void free_CSGHashTable(CSGHashTable R);
 
 extern bool equal_CSG(CSG X, CSG csg);
 
@@ -28,5 +28,7 @@ extern void print_CSG(CSG csg);
 extern void print_CSGList(CSGList list);
 
 extern void print_CSGRelation(CSGHashTable R);
+
+extern void fprint_CSGRelation(CSGHashTable R, FILE *f);
 
 #endif
