@@ -7,7 +7,23 @@ typedef struct CSG* CSG;
 
 typedef LinkedList CSGList;
 
-typedef CSGList CSGHashTable[1009];
+typedef CSGList CSGHashTable[2];
+
+typedef struct CSGNODE *CSGTREE;
+
+extern CSGTREE new_CSGTREE(int StudentId, CSG p);
+
+extern void insert_Node_CSG(int StudentId, CSG p, CSGTREE root);
+
+extern void print_CSGTREE(CSGTREE root);
+
+extern void print_secondIndex_CSG();
+
+extern void findCSGList_helper(int StudentId, CSGTREE root, CSGList list);
+
+extern void findCSGList(int StudentId, CSGList list);
+
+extern char* getCourse_CSG(CSG csg);
 
 extern CSG new_CSG(char* Course, int StudentId, char* Grade);
 
@@ -16,6 +32,8 @@ extern int hash_CSG(CSG t);
 extern void free_CSGHashTable(CSGHashTable R);
 
 extern bool equal_CSG(CSG X, CSG csg);
+
+extern char* getGrade_CSG(CSG csg);
 
 extern void insert_CSG(CSG t, CSGHashTable R);
 

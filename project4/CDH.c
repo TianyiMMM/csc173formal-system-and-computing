@@ -98,7 +98,22 @@ void insert_CDH(CDH t, CDHHashTable R){
 void delete_CDH(CDH X, CDHHashTable R){
 	int key = hash_CDH(X);
 	if (R[key] != NULL){
-		LinkedList_remove(R[key], X);
+		if (X->Day[0]!='*' && X->Hour[0]!='*'){
+			LinkedList_remove(R[key], X);
+		} else if (X->Day[0]=='*' && X->Hour[0]=='*'){
+			while (!LinkedList_isEmpty(R[key])){
+				LinkedList_pop(R[key]);
+			}
+		} else {
+			LinkedListIterator iterator = LinkedList_iterator(R[key]);
+			while (LinkedListIterator_hasNext(iterator)){
+				CDH cdh = LinkedListIterator_next(iterator);
+				if (equal_CDH(X, cdh)){
+					LinkedList_remove(R[key], cdh);
+				}
+			}
+			free(iterator);
+		}
 	}
 }
 

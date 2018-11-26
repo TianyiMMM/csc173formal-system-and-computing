@@ -17,6 +17,8 @@ extern void free_CRHashTable(CRHashTable R);
 
 extern bool equal_CR(CR X, CR cr);
 
+extern char* getRoom_CR(CR cr);
+
 extern void insert_CR(CR t, CRHashTable R);
 
 extern void delete_CR(CR X, CRHashTable R);

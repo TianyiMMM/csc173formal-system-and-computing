@@ -68,6 +68,10 @@ bool equal_CR(CR X, CR cr){
 	return equal;
 }
 
+char* getRoom_CR(CR cr){
+	return cr->Room;
+}
+
 void insert_CR(CR t, CRHashTable R){
 	int key = hash_CR(t);
 	if (R[key] == NULL){

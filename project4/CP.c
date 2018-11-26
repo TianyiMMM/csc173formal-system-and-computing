@@ -76,7 +76,13 @@ void insert_CP(CP t, CPHashTable R){
 void delete_CP(CP X, CPHashTable R){
 	int key = hash_CP(X);
 	if (R[key] != NULL){
-		LinkedList_remove(R[key], X);
+		if (X->Prerequisite[0]!='*'){
+			LinkedList_remove(R[key], X);
+		} else {
+			while (!LinkedList_isEmpty(R[key])){
+				LinkedList_pop(R[key]);
+			}
+		}
 	}
 }
 

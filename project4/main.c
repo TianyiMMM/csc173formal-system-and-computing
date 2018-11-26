@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "LinkedList.h"
 #include "CSG.h"
 #include "SNAP.h"
 #include "CP.h"
@@ -119,6 +120,57 @@ void saving(CSGHashTable csgR, SNAPHashTable snapR, CPHashTable cpR, CDHHashTabl
 	fclose(f);
 }
 
+void query1(char* StudentName, char* CourseName, CSGHashTable csgR){
+	SNAPList list = new_LinkedList();
+	findSNAPList(StudentName, list);
+	LinkedListIterator iterator = LinkedList_iterator(list);
+	while (LinkedListIterator_hasNext(iterator)){
+		SNAP snap = LinkedListIterator_next(iterator);
+		int StudentId = getStudentId_SNAP(snap);
+		CSG csg = new_CSG(CourseName, StudentId, "*");
+		CSGList lookup = lookup_CSG(csg, csgR);
+		LinkedListIterator iterator2 = LinkedList_iterator(lookup);
+		while (LinkedListIterator_hasNext(iterator2)){
+			CSG csg = LinkedListIterator_next(iterator2);
+			printf("%s ", getGrade_CSG(csg));
+		}
+		free(iterator2);
+	}
+	free(iterator);
+}
+
+void query2(char* StudentName, char* Day, char* Hour, CDHHashTable cdhR, CRHashTable crR){
+	SNAPList list = new_LinkedList();
+	findSNAPList(StudentName, list);
+	LinkedListIterator iterator = LinkedList_iterator(list);
+	while (LinkedListIterator_hasNext(iterator)){
+		SNAP snap = LinkedListIterator_next(iterator);
+		int StudentId = getStudentId_SNAP(snap);
+
+		CSGList list2 = new_LinkedList();
+		findCSGList(StudentId, list2);
+
+		LinkedListIterator iterator2 = LinkedList_iterator(list2);
+		while (LinkedListIterator_hasNext(iterator2)){
+			CSG csg = LinkedListIterator_next(iterator2);
+			CDH cdh = new_CDH(getCourse_CSG(csg), Day, Hour);
+			CDHList lookup = lookup_CDH(cdh, cdhR);
+			if (!LinkedList_isEmpty(lookup)){
+				CR cr = new_CR(getCourse_CSG(csg), "*");
+				CRList lookup2 = lookup_CR(cr, crR);
+				LinkedListIterator iterator3 = LinkedList_iterator(lookup2);
+				while (LinkedListIterator_hasNext(iterator3)){
+					CR cr = LinkedListIterator_next(iterator3);
+					printf("%s ", getRoom_CR(cr));
+				}
+				free(iterator3);
+			}
+		}
+		free(iterator2);
+	}
+	free(iterator);
+}
+
 int main(int argc, char** argv) {
 	printf("CSC173 Project 4 by Tianyi Ma\n\n");
 
@@ -129,17 +181,19 @@ int main(int argc, char** argv) {
 	CPHashTable crR;
 	// initiating relation tables
 	for (int i = 0; i < 1009; i++){
-		csgR[i] = NULL;
-		snapR[i] = NULL;
 		cpR[i] = NULL;
 		cdhR[i] = NULL;
 		crR[i] = NULL;
 	}
+	for (int i = 0; i < 2; i++){
+		csgR[i] = NULL;
+		snapR[i] = NULL;
+	}
 
+	// part1
 	loading(csgR, snapR, cpR, cdhR, crR);
-
+	/*
 	printf("Demonstrating basic single-relation operations...\n");
-	// looking up CSG tuple ("CS101", 12345, "*") in the table
 	CSG csg = new_CSG("CS101", 12345, "*");
 	CP cp1 = new_CP("CS205", "CS120");
 	CP cp2 = new_CP("CS205", "CS101");
@@ -172,12 +226,24 @@ int main(int argc, char** argv) {
 	print_CPRelation(cpR);
 	printf("\n");
 
+	insert_CR(cr, crR);
+	delete_CP(cp1, cpR);*/
 
+
+	// part2
+	//print_secondIndex_SNAP();
+	//print_secondIndex_CSG();
+	query1("C. Brown", "CS101", csgR);
+	printf("\n");
+	query2("C. Brown", "M", "9AM", cdhR, crR);
+	printf("\n");
+
+	/*
 	free_CSGHashTable(csgR);
 	free_SNAPHashTable(snapR);
 	free_CPHashTable(cpR);
 	free_CDHHashTable(cdhR);
-	free_CRHashTable(crR);
+	free_CRHashTable(crR);*/
 }
 
 
