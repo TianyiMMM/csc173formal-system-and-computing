@@ -133,6 +133,19 @@ CDHList lookup_CDH(CDH X, CDHHashTable R){
 	}
 	return list;
 }
+
+char* getCourse_CDH(CDH X){
+	return X->Course;
+}
+
+char* getDay_CDH(CDH X){
+	return X->Day;
+}
+
+char* getHour_CDH(CDH X){
+	return X->Hour;
+}
+
 void print_CDH(CDH cdh){
 	printf("%s %s %s\n", cdh->Course, cdh->Day, cdh->Hour);
 }

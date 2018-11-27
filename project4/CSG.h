@@ -7,6 +7,8 @@ typedef struct CSG* CSG;
 
 typedef LinkedList CSGList;
 
+typedef LinkedList SList;
+
 typedef CSGList CSGHashTable[2];
 
 typedef struct CSGNODE *CSGTREE;
@@ -48,5 +50,11 @@ extern void print_CSGList(CSGList list);
 extern void print_CSGRelation(CSGHashTable R);
 
 extern void fprint_CSGRelation(CSGHashTable R, FILE *f);
+
+extern void select_CSC(char* Name, int StudentId, char* Grade, CSGHashTable R, CSGHashTable select);
+
+extern SList projectStudentId_CSG(CSGHashTable R);
+
+extern void print_SList(SList s);
 
 #endif

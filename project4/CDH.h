@@ -23,6 +23,12 @@ extern void delete_CDH(CDH X, CDHHashTable R);
 
 extern CDHList lookup_CDH(CDH X, CDHHashTable R);
 
+extern char* getCourse_CDH(CDH X);
+
+extern char* getDay_CDH(CDH X);
+
+extern char* getHour_CDH(CDH X);
+
 extern void print_CDH(CDH cdh);
 
 extern void print_CDHList(CDHList list);

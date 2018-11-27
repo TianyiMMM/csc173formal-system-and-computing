@@ -150,12 +150,14 @@ void free_CSGHashTable(CSGHashTable R){
 
 bool equal_CSG(CSG X, CSG csg){
 	bool equal = 1;
-	if (X->StudentId != csg->StudentId){
+	if ((X->StudentId != 0) && (X->StudentId != csg->StudentId)){
 		equal = 0;
 	}
-	for (int i = 0; i < 5; i++){
-		if (X->Course[i]!=csg->Course[i]){
-			equal = 0;
+	if (X->Course[0] != '*'){
+		for (int i = 0; i < 5; i++){
+			if (X->Course[i]!=csg->Course[i]){
+				equal = 0;
+			}
 		}
 	}
 	if (X->Grade[0] != '*'){ // if the grade is specified
@@ -204,6 +206,20 @@ void delete_CSG(CSG X, CSGHashTable R){
 // assume that the components of key attributes will always be given
 CSGList lookup_CSG(CSG X, CSGHashTable R){
 	CSGList list = new_LinkedList();
+
+	if (X->Course[0] == '*' || X->StudentId == 0){
+		for (int key = 0; key < 2; key ++){
+			LinkedListIterator iterator = LinkedList_iterator(R[key]);
+			while (LinkedListIterator_hasNext(iterator)){
+				CSG csg = LinkedListIterator_next(iterator);
+				if (equal_CSG(X, csg)){
+					LinkedList_add_at_end(list, csg);
+				}
+			}
+			free(iterator);
+		}
+	}
+
 	int key = hash_CSG(X);
 	if (R[key] != NULL){
 		LinkedListIterator iterator = LinkedList_iterator(R[key]);
@@ -257,6 +273,38 @@ void fprint_CSGRelation(CSGHashTable R, FILE *f){
 	}
 }
 
+void select_CSC(char* Course, int StudentId, char* Grade, CSGHashTable R, CSGHashTable select){
+	CSG lookup = new_CSG(Course, StudentId, Grade);
+	CSGList list = lookup_CSG(lookup, R);
+	LinkedListIterator iterator = LinkedList_iterator(list);
+	while (LinkedListIterator_hasNext(iterator)){
+		CSG csg = LinkedListIterator_next(iterator);
+		insert_CSG(csg, select);
+	}
+	free(iterator);
+}
+// need to create S, CRDH and DH for this project
+SList projectStudentId_CSG(CSGHashTable R){
+	SList result = new_LinkedList();
+	for (int i = 0; i < 2; i++){
+		LinkedListIterator iterator = LinkedList_iterator(R[i]);
+		while (LinkedListIterator_hasNext(iterator)){
+			CSG csg = LinkedListIterator_next(iterator);
+			LinkedList_add_at_end(result, &csg->StudentId);
+		}
+		free(iterator);
+	}
+	return result;
+}
 
+void print_SList(SList s){
+	printf("StudentId\n");
+	LinkedListIterator iterator = LinkedList_iterator(s);
+	while (LinkedListIterator_hasNext(iterator)){
+		int* StudentId = LinkedListIterator_next(iterator);
+		printf("%d\n", *StudentId);
+	}
+	free(iterator);
+}
 
 

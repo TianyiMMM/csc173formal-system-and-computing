@@ -11,6 +11,8 @@
 #include "CP.h"
 #include "CDH.h"
 #include "CR.h"
+#include "CRDH.h"
+#include "DH.h"
 
 void loading(CSGHashTable csgR, SNAPHashTable snapR, CPHashTable cpR, CDHHashTable cdhR, CRHashTable crR){
 	enum relation{CSGrel, SNAPrel, CPrel, CDHrel, CRrel};
@@ -129,12 +131,16 @@ void query1(char* StudentName, char* CourseName, CSGHashTable csgR){
 		int StudentId = getStudentId_SNAP(snap);
 		CSG csg = new_CSG(CourseName, StudentId, "*");
 		CSGList lookup = lookup_CSG(csg, csgR);
-		LinkedListIterator iterator2 = LinkedList_iterator(lookup);
-		while (LinkedListIterator_hasNext(iterator2)){
-			CSG csg = LinkedListIterator_next(iterator2);
-			printf("%s ", getGrade_CSG(csg));
+		if (!LinkedList_isEmpty(lookup)){
+			LinkedListIterator iterator2 = LinkedList_iterator(lookup);
+			while (LinkedListIterator_hasNext(iterator2)){
+				CSG csg = LinkedListIterator_next(iterator2);
+				printf("%s get a/an %s in Course %s\n", StudentName, getGrade_CSG(csg), CourseName);
+			}
+			free(iterator2);
+		} else {
+			printf("Data not found\n");
 		}
-		free(iterator2);
 	}
 	free(iterator);
 }
@@ -158,17 +164,78 @@ void query2(char* StudentName, char* Day, char* Hour, CDHHashTable cdhR, CRHashT
 			if (!LinkedList_isEmpty(lookup)){
 				CR cr = new_CR(getCourse_CSG(csg), "*");
 				CRList lookup2 = lookup_CR(cr, crR);
-				LinkedListIterator iterator3 = LinkedList_iterator(lookup2);
-				while (LinkedListIterator_hasNext(iterator3)){
-					CR cr = LinkedListIterator_next(iterator3);
-					printf("%s ", getRoom_CR(cr));
+				if (!LinkedList_isEmpty(lookup2)){
+					LinkedListIterator iterator3 = LinkedList_iterator(lookup2);
+					while (LinkedListIterator_hasNext(iterator3)){
+						CR cr2 = LinkedListIterator_next(iterator3);
+						printf("%s is in %s at %s on %s\n", StudentName, getRoom_CR(cr2), Hour, Day);
+					}
+					free(iterator3);
+				} else {
+					printf("Data not found\n");
 				}
-				free(iterator3);
+			} else {
+				printf("Data not found\n");
 			}
 		}
 		free(iterator2);
 	}
 	free(iterator);
+}
+
+void query1_repl(CSGHashTable csgR){
+	bool check = 0;
+	printf("Testing query: What grade did (StudentName) get in (CourseName)?\n");
+	while (!check){
+		char StudentName[30];
+		char CourseName[30];
+		char yes[5];
+		printf("Enter StudentName: ");
+		fgets(StudentName, 30, stdin);
+		printf("Enter CourseName: ");
+		fgets(CourseName, 30, stdin);
+		StudentName[strlen(StudentName)-1]=0;
+		CourseName[strlen(CourseName)-1]=0;
+		query1(StudentName, CourseName, csgR);
+		printf("Test another one? (yes/no): ");
+		fgets(yes, 5, stdin);
+		if (yes[0] == 'n'){
+			check = 1;
+		}
+	}
+	printf("\n");
+}
+
+void query2_repl(CDHHashTable cdhR, CRHashTable crR){
+	bool check = 0;
+	printf("Testing query: Where is (StudentName) at (Time) on (Day)?\n");
+	while (!check){
+		char StudentName[30];
+		char Time[10];
+		char Day[10];
+		char yes[5];
+		printf("Enter StudentName: ");
+		fgets(StudentName, 30, stdin);
+		printf("Enter Time: ");
+		fgets(Time, 10, stdin);
+		printf("Enter Day: ");
+		fgets(Day, 10, stdin);
+		StudentName[strlen(StudentName)-1]=0;
+		Day[strlen(Day)-1]=0;
+		Time[strlen(Time)-1]=0;
+		query2(StudentName, Day, Time, cdhR, crR);
+		printf("Test another one? (yes/no): ");
+		fgets(yes, 5, stdin);
+		if (yes[0] == 'n'){
+			check = 1;
+		}
+	}
+	printf("\n");
+}
+
+void selection(CSGHashTable select, CSGHashTable csgR){
+	select_CSC("CS101", 0, "*", csgR, select);
+	print_CSGRelation(select);
 }
 
 int main(int argc, char** argv) {
@@ -179,20 +246,64 @@ int main(int argc, char** argv) {
 	CPHashTable cpR;
 	CPHashTable cdhR;
 	CPHashTable crR;
+	CRDHHashTable crdhR;
+	CRDHHashTable crdhR2;
+	DHHashTable dhR;
 	// initiating relation tables
 	for (int i = 0; i < 1009; i++){
 		cpR[i] = NULL;
 		cdhR[i] = NULL;
 		crR[i] = NULL;
+		dhR[i] = NULL;
 	}
 	for (int i = 0; i < 2; i++){
 		csgR[i] = NULL;
 		snapR[i] = NULL;
+		crdhR[i] = NULL;
+		crdhR2[i] = NULL;
 	}
 
 	// part1
 	loading(csgR, snapR, cpR, cdhR, crR);
-	/*
+
+	// part2
+	query1_repl(csgR);
+	query2_repl(cdhR, crR);
+
+	// part3
+	printf("PART 3\n");
+	CSGHashTable select;
+	select[0]=NULL;
+	select[1]=NULL;
+	printf("8.12: \n");
+	selection(select, csgR);
+	printf("\n");
+
+	printf("8.13: \n");
+	SList project = projectStudentId_CSG(select);
+	print_SList(project);
+	printf("\n");
+
+	printf("8.14: \n");
+	join_CR_CDH(crR, cdhR, crdhR);
+	print_CRDHRelation(crdhR);
+	printf("\n");
+
+	printf("8.15: \n");
+	CRDHList crdhList = new_LinkedList();
+	findCRDHList("Turing Aud.", crdhList);
+
+	LinkedListIterator iterator = LinkedList_iterator(crdhList);
+	while (LinkedListIterator_hasNext(iterator)){
+		CRDH crdh = LinkedListIterator_next(iterator);
+		insert_CRDH(crdh, crdhR2);
+	}
+	free(iterator);
+	projectDayHour_CRDH(crdhR2, dhR);
+	print_DHRelation(dhR);
+	printf("\n\n");
+
+
 	printf("Demonstrating basic single-relation operations...\n");
 	CSG csg = new_CSG("CS101", 12345, "*");
 	CP cp1 = new_CP("CS205", "CS120");
@@ -226,24 +337,15 @@ int main(int argc, char** argv) {
 	print_CPRelation(cpR);
 	printf("\n");
 
-	insert_CR(cr, crR);
-	delete_CP(cp1, cpR);*/
+	saving(csgR, snapR, cpR, cdhR, crR);
 
-
-	// part2
-	//print_secondIndex_SNAP();
-	//print_secondIndex_CSG();
-	query1("C. Brown", "CS101", csgR);
-	printf("\n");
-	query2("C. Brown", "M", "9AM", cdhR, crR);
-	printf("\n");
-
-	/*
 	free_CSGHashTable(csgR);
 	free_SNAPHashTable(snapR);
 	free_CPHashTable(cpR);
 	free_CDHHashTable(cdhR);
-	free_CRHashTable(crR);*/
+	free_CRHashTable(crR);
+	free_CRDHHashTable(crdhR);
+	free_DHHashTable(dhR);
 }
 
 
